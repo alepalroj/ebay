@@ -17,7 +17,7 @@ class Request:
     self.app_name = config.get('keys', 'app-name')
     self.dev_name = config.get('keys', 'dev-name')
     self.cert_name = config.get('keys', 'cert-name')
-    self.siteid = config.get('keys', 'siteid')
+    self.siteid = config.get('keys', 'category-site-id')
     self.compatibility_level = config.get('keys', 'compatibility-level')
     self.endpoint = config.get('endpoints', 'url')
     self.view_all_nodes = config.get('keys', 'viewn-all-nodes')
@@ -25,6 +25,7 @@ class Request:
     self.detai_level = config.get('keys', 'detail-level')
     self.encoding = config.get('keys', 'encoding')
     self.auth_token = config.get('auth', 'token')
+    self.level_limit = config.get('keys', 'level-limit')
         
   def getCategories(self, parentId):
     root = etree.Element("GetCategoriesRequest",xmlns="urn:ebay:apis:eBLBaseComponents")
@@ -36,11 +37,26 @@ class Request:
         parentId_elem.text = str(parentId)
     viewAllNodes_elem = etree.SubElement(root, "ViewAllNodes")
     viewAllNodes_elem.text = str(self.view_all_nodes).lower()
+    
+    outputselector_categoryID_elem = etree.SubElement(root, "OutputSelector")
+    outputselector_categoryID_elem.text = str('CategoryArray.Category.CategoryID')
+    outputselector_categoryParentID_elem = etree.SubElement(root, "OutputSelector")
+    outputselector_categoryParentID_elem.text = str('CategoryArray.Category.CategoryParentID')
+    outputselector_categoryLevel_elem = etree.SubElement(root, "OutputSelector")
+    outputselector_categoryLevel_elem.text = str('CategoryArray.Category.CategoryLevel')
+    outputselector_categoryName_elem = etree.SubElement(root, "OutputSelector")
+    outputselector_categoryName_elem.text = str('CategoryArray.Category.CategoryName')
+    outputselector_bestOfferEnabled_elem = etree.SubElement(root, "OutputSelector")
+    outputselector_bestOfferEnabled_elem.text = str('CategoryArray.Category.BestOfferEnabled')    
+    
     categorySiteId_elem = etree.SubElement(root, "CategorySiteID")
     categorySiteId_elem.text = str(self.category_site_id)
     if self.detai_level:
         detailLevel_elem = etree.SubElement(root, "DetailLevel")
         detailLevel_elem.text = str(self.detai_level)
+    if self.level_limit:
+        levelLimit_elem = etree.SubElement(root, "LevelLimit")
+        levelLimit_elem.text = str(self.level_limit)
     request = etree.tostring(root, pretty_print=False,
                              xml_declaration=True, encoding="utf-8")
     response = getResponse(self, "GetCategories", request)
