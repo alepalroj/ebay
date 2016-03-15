@@ -22,21 +22,50 @@ class Utils:
 	def getCategoryList(self, root):
 		categoryList = []
 		for category in root.findall('./CategoryArray/Category'):
-			bestOfferEnabled = category.find('BestOfferEnabled').text
-			bestOfferEnabled = bestOfferEnabled.lower()
-			if 'true' == bestOfferEnabled:
-				bestOfferEnabled = 1
+			bestOfferEnabled = category.find('BestOfferEnabled')
+			categoryID = category.find('CategoryID')
+			categoryParentID = category.find('CategoryParentID')
+			categoryLevel = category.find('CategoryLevel')
+			categoryName = category.find('CategoryName')
+			
+			if bestOfferEnabled is not None:
+				bestOfferEnabled = category.find('BestOfferEnabled').text
+				bestOfferEnabled = bestOfferEnabled.lower()
+				if 'true' == bestOfferEnabled:
+					bestOfferEnabled = 1
+				else:
+					bestOfferEnabled = 0
+			
+			if categoryID is not None:
+				categoryID = category.find('CategoryID').text
 			else:
-				bestOfferEnabled = 0
-			if category.find('CategoryID').text == category.find('CategoryParentID').text:
-				categoryParentID = None
-			else:
+				categoryID = None
+			
+			if categoryParentID is not None:
 				categoryParentID = category.find('CategoryParentID').text
-			item = Category(category.find('CategoryID').text, category.find('CategoryLevel').text, categoryParentID, category.find('CategoryName').text, bestOfferEnabled)
+			else:
+				categoryParentID = None
+			
+			if categoryID is not None and categoryParentID is not None:
+				if categoryID == categoryParentID:
+					categoryParentID = None
+					
+			if categoryLevel is not None:
+				categoryLevel = category.find('CategoryLevel').text
+			else:
+				categoryLevel = None
+				
+			if categoryName is not None:
+				categoryName = category.find('CategoryName').text
+			else:
+				categoryName = None
+				
+			item = Category(categoryID, categoryLevel, categoryParentID, categoryName, bestOfferEnabled)
 			categoryList.append(item)
 		return categoryList
 		
 	def setHtml(self, categoryID, categoryList):
+		# try JSON 
 		arrayCollection = '['
 		for line in categoryList:
 			for i in range(5):
