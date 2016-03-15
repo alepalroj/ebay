@@ -22,7 +22,7 @@ def render(categoryId):
 def rebuild():
 	try:
 		request = Request()
-		response = request.getCategories(10542)
+		response = request.getCategories(0)
 		util = Utils(response)
 		root = util.getStringXml()
 		categoryList = []
