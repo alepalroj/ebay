@@ -90,7 +90,7 @@ class Utils:
 		return '_'+ str(abs(hash(str(child)))) + ' = insFld(_'+str(root)+', gFld("'+str(child)+'", "javascript:undefined"))'
 		
 		
-	def setHtml(self, categoryID, categoryList):
+	def setHtml(self, categoryID, categoryList, level, template):
 		jsfile = ''		
 		jsfile += "USETEXTLINKS = 1\n"
 		jsfile += "STARTALLOPEN = 0\n"
@@ -106,7 +106,7 @@ class Utils:
 		nodes = {}
 		values = []		
 		for line in categoryList:
-			for i in range(5):
+			for i in range(level):
 				if line[i] is not None:
 					if not str(line[i]) in nodes:
 						if i == 0:
@@ -121,7 +121,7 @@ class Utils:
 		for item in self.uniqe(values):
 			jsfile += nodes[item] + "\n"
 		self.writeJs(categoryID, jsfile)
-		content = self.readHTML(categoryID)
+		content = self.readHTML(categoryID, template)
 		content = content.replace("{{categoryID}}", categoryID)
 		self.writeHTML(categoryID, content)
 		
@@ -136,11 +136,8 @@ class Utils:
 			print "Unexpected error:", sys.exc_info()[0]
 
 
-	def readHTML(self, categoryID):
-		config = ConfigParser.RawConfigParser()
-		config.read('config.ini')
+	def readHTML(self, categoryID, template):
 		_dir = os.path.dirname(__file__)
-		template = config.get('template', 'folder')
 		try:
 			htmlfile = open(''+_dir+''+template, "r")
 			content = htmlfile.read()
@@ -160,3 +157,31 @@ class Utils:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
 		except:
 			print "Unexpected error:", sys.exc_info()[0]
+			
+	def getQuery(self, level):
+		selectquery = ''
+		onquery = ''
+		
+		if int(level) < 1:
+			print "LevelLimit must be 1 or greater"
+			sys.exit()
+			
+		if int(level) == 1:
+			query = """ SELECT category1.categoryName AS level1 FROM category AS category1 WHERE category1.categoryId = ? """
+			return query			
+			
+		if int(level) > 1:
+			query = """ SELECT {{selectquery}} FROM category AS category1 LEFT JOIN category AS category2 ON {{onquery}} WHERE category1.categoryId = ? """
+			for i in range(int(level)):
+				selectquery += 'category'+str(i+1)+'.categoryName AS level'+str(i+1)
+				if i > 0: 
+					if i+1 < int(level):
+						onquery += 'category'+str(i+1)+'.categoryParentID = category'+str(i)+'.categoryId LEFT JOIN category AS category'+str(i+2)+' ON '
+					if i+1 == int(level):
+						onquery += 'category'+str(i+1)+'.categoryParentID = category'+str(i)+'.categoryId'
+				if i+1 < int(level):
+					selectquery += ', '
+			query = query.replace('{{selectquery}}',selectquery)
+			query = query.replace('{{onquery}}',onquery)
+			return query
+		
