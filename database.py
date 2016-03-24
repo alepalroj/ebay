@@ -49,13 +49,11 @@ class Management:
   	finally:
   		db.close()
   		
-  def getCategory(self, categoryId):
+  def getCategory(self, categoryId, query):
   	try:
   		db = sqlite3.connect(self.name)
   		cursor = db.cursor()
-  		"""  maximum depth of six and contains 34 top-level """
-  		cursor.execute("""SELECT category1.categoryName AS level1, category2.categoryName AS level2, category3.categoryName AS level3, category4.categoryName AS level4, category5.categoryName AS level5, category6.categoryName AS level6
-FROM category AS category1 LEFT JOIN category AS category2 ON category2.categoryParentID = category1.categoryId LEFT JOIN category AS category3 ON category3.categoryParentID = category2.categoryId LEFT JOIN category AS category4 ON category4.categoryParentID = category3.categoryId LEFT JOIN category AS category5 ON category5.categoryParentID = category4.categoryId LEFT JOIN category AS category6 ON category6.categoryParentID = category5.categoryId WHERE category1.categoryId = ?""", (categoryId, ))
+  		cursor.execute(query, (categoryId, ))
 		all_rows = cursor.fetchall()
   		return all_rows
   	except Exception as e:
