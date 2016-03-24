@@ -13,23 +13,23 @@ class Management:
   		db = sqlite3.connect(self.name)
   		cursor = db.cursor()
   		cursor.execute('''DROP TABLE IF EXISTS category''')
-  		cursor.execute('''CREATE TABLE category(ID INTEGER PRIMARY KEY AUTOINCREMENT, categoryID TEXT, categoryLevel TEXT, categoryParentID TEXT, categoryName TEXT, bestOfferEnabled BOOLEAN)''')
+  		cursor.execute('''CREATE TABLE category(categoryID TEXT PRIMARY KEY, categoryLevel TEXT, categoryParentID TEXT, categoryName TEXT, bestOfferEnabled BOOLEAN)''')
   		db.commit()
   	except Exception as e:
   		db.rollback()
-  		raise e
+  		print e 
+  		pass
   	finally:
   		db.close()
 
-  def isertList(self, categoryList = []):
+  def isertList(self, categories):
   	try:
   		db = sqlite3.connect(self.name)
-  		for obj in categoryList:
-  			with db:
-  				db.execute('''INSERT INTO category(categoryID, categoryLevel, categoryParentID, categoryName, bestOfferEnabled) VALUES (?,?,?,?,?)''', (obj.categoryID, obj.categoryLevel, obj.categoryParentID, obj.categoryName, obj.bestOfferEnabled))
+  		cursor = db.cursor()
+  		cursor.executemany('''INSERT INTO category(categoryID, categoryLevel, categoryParentID, categoryName, bestOfferEnabled) VALUES (?,?,?,?,?)''', categories)
+  		db.commit()
   	except Exception as e:
   		db.rollback()
-  		raise e
   	finally:
   		db.close()
 
@@ -44,7 +44,8 @@ class Management:
 		else:
 			return 1
   	except Exception as e:
-  		raise e
+  		print e
+  		pass
   	finally:
   		db.close()
   		
@@ -58,6 +59,7 @@ FROM category AS category1 LEFT JOIN category AS category2 ON category2.category
 		all_rows = cursor.fetchall()
   		return all_rows
   	except Exception as e:
-  		raise e
+  		print e 
+  		pass
   	finally:
   		db.close()
