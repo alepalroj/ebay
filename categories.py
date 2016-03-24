@@ -52,9 +52,12 @@ def render(categoryId):
 		managment = Management()
 		message = managment.existCategory(categoryId)
 		if message == 1:
-			all_rows = managment.getCategory(categoryId)
 			util = Utils('')
-			util.setHtml(categoryId, all_rows)
+			level = int(config.get('keys', 'level-limit'))
+			template = config.get('template', 'folder')
+			query = util.getQuery(level)
+			all_rows = managment.getCategory(categoryId, query)
+			util.setHtml(categoryId, all_rows, level, template)
 		else:
 			print(message)	
 	except Exception as e:
