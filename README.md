@@ -1,34 +1,41 @@
-# ebay
-Consuming Web services
+<p># ebay<br />
+Consuming Web services</p>
 
-categories.py
-  #default category to get from ws 10542 
-  response = request.getCategories(10542)
+<p>before &nbsp;<br />
+https://github.com/kratark/ebay/issues</p>
 
-before  
-https://github.com/kratark/ebay/issues
+<p>$ python categories.py --help<br />
+-----------------------------------------------------<br />
+categories --rebuild<br />
+categories --render &lt;category_id&gt;<br />
+categories -h | categories --help<br />
+categories --level &lt;LevelLimit&gt;<br />
+categories --parent &lt;CategoryParent&gt;<br />
+categories --pool &lt;threeds&gt;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;level | LevelLimit 6 default value<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;parent | CategoryParent 0 default value<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pool | Threads 350 default value<br />
+-----------------------------------------------------</p>
 
-=========================
-     Sample Session
-=========================
+<p>&nbsp;</p>
 
-% python categories.py --rebuild
-% python categories.py --rebuild
-% python categories.py --render 179281
-% ls 179281.html
-179281.html
-% ls 179022.html
-179022.html
-% python categories.py --render 6666666666
-No category with ID: 6666666666
+<p>=========================<br />
+&nbsp; &nbsp; &nbsp;Sample Session<br />
+=========================</p>
 
-requirements
-dominate
-ConfigParser
-sqlite3
-urllib2
-lxml
+<p>% python categories.py --rebuild<br />
+% python categories.py --rebuild<br />
+% python categories.py --render 179281<br />
+% ls 179281.html<br />
+179281.html<br />
+% ls 179022.html<br />
+179022.html<br />
+% python categories.py --render 6666666666<br />
+No category with ID: 6666666666</p>
 
-
-  
-
+<p>requirements<br />
+dominate<br />
+ConfigParser<br />
+sqlite3<br />
+urllib2<br />
+lxml</p>
