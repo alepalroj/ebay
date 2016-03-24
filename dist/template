@@ -1,0 +1,49 @@
+<HTML>
+ <HEAD>
+  <TITLE>{{categoryID}}</TITLE>
+  <SCRIPT>
+   function getQueryString(index) {
+    var paramExpressions;
+    var param
+    var val
+    paramExpressions = window.location.search.substr(1).split("&");
+    if (index < paramExpressions.length) {
+      param = paramExpressions[index]; 
+      if (param.length > 0) {
+        return eval(unescape(param));
+      }
+    }
+    return ""
+  }
+  </SCRIPT>
+  <SCRIPT src="dist/ua.js"></SCRIPT>
+  <SCRIPT src="dist/ftiens4.js"></SCRIPT>
+  <SCRIPT src="{{categoryID}}.js"></SCRIPT>
+ </HEAD>
+
+ <BODY bgcolor="white" leftmargin="0" topmargin="0" marginheight="0" marginwidth="0"  onResize="if (navigator.family == 'nn4') window.location.reload()">
+ <TABLE cellpadding="0" cellspacing="0" border="0" width="772">
+  <TR>
+   <TD width="178" valign="top">
+    <TABLE cellpadding="4" cellspacing="0" border="0" width="100%">
+     <TR>
+      <TD bgcolor="#ECECD9">
+
+        <TABLE cellspacing="0" cellpadding="2" border="0" width="100%">
+         <TR>
+          <TD bgcolor="white">
+ <TABLE border=0><TR><TD><FONT size=-2><A style="font-size:7pt;text-decoration:none;color:silver" href="http://www.treemenu.net/" target=_blank></A></FONT></TD></TR></TABLE>
+ <SPAN class=TreeviewSpanArea>
+  <SCRIPT>initializeDocument()</SCRIPT>
+  <NOSCRIPT>
+   A tree for site navigation will open here if you enable JavaScript in your browser.
+  </NOSCRIPT>
+ </SPAN>
+          </TD>
+         </TR>
+        </TABLE>
+       </TD>
+      </TR>
+     </TABLE>
+ </BODY>
+</HTML>
