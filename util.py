@@ -3,10 +3,9 @@
 import xml.etree.ElementTree as ET
 import re
 from entitys import Category
-from dominate import document
-from dominate.tags import *
-import dominate
-from dominate.tags import *
+import sys
+import ConfigParser
+import os
 
 class Utils:
 	def __init__(self, xmlString):
@@ -19,7 +18,8 @@ class Utils:
 		self.xmlString = re.sub('\\sxmlns="[^"]+"', '', self.xmlString, count=1)
 		return ET.fromstring(self.xmlString)
 	
-	def getCategoryList(self, root):
+	def getCategoryList(self, root, parent):
+		categories =[]
 		categoryList = []
 		for category in root.findall('./CategoryArray/Category'):
 			bestOfferEnabled = category.find('BestOfferEnabled')
@@ -28,6 +28,11 @@ class Utils:
 			categoryLevel = category.find('CategoryLevel')
 			categoryName = category.find('CategoryName')
 			
+			if categoryID is not None:
+				categoryID = category.find('CategoryID').text
+			else:
+				categoryID = None
+				
 			if bestOfferEnabled is not None:
 				bestOfferEnabled = category.find('BestOfferEnabled').text
 				bestOfferEnabled = bestOfferEnabled.lower()
@@ -35,11 +40,6 @@ class Utils:
 					bestOfferEnabled = 1
 				else:
 					bestOfferEnabled = 0
-			
-			if categoryID is not None:
-				categoryID = category.find('CategoryID').text
-			else:
-				categoryID = None
 			
 			if categoryParentID is not None:
 				categoryParentID = category.find('CategoryParentID').text
@@ -60,39 +60,103 @@ class Utils:
 			else:
 				categoryName = None
 				
-			item = Category(categoryID, categoryLevel, categoryParentID, categoryName, bestOfferEnabled)
-			categoryList.append(item)
+			if categoryID is not None:
+				item = Category(categoryID, categoryLevel, categoryParentID, categoryName, bestOfferEnabled)
+				categoryList.append(item)
 		return categoryList
+
+		
+	def listToInsert(self, inn):
+		output = []
+		for item in inn:
+			try:
+				output.append((item.categoryID, item.categoryLevel, item.categoryParentID, item.categoryName, item.bestOfferEnabled))
+			except:
+				pass				
+		return output
+		
+		
+	def uniqe(self, inputs):
+		output = []
+		for item in inputs:
+			if item not in output:
+				output.append(item)
+		return output
+
+	def _setRoot(self, root):
+		return '_'+ str(abs(hash(str(root)))) + ' = insFld(foldersTree, gFld("'+str(root)+'", "javascript:undefined"))'
+		
+	def _setChild(self, root, child):
+		return '_'+ str(abs(hash(str(child)))) + ' = insFld(_'+str(root)+', gFld("'+str(child)+'", "javascript:undefined"))'
+		
 		
 	def setHtml(self, categoryID, categoryList):
-		# try JSON 
-		arrayCollection = '['
+		jsfile = ''		
+		jsfile += "USETEXTLINKS = 1\n"
+		jsfile += "STARTALLOPEN = 0\n"
+		jsfile += "USEFRAMES = 0\n"
+		jsfile += "USEICONS = 0\n"
+		jsfile += "WRAPTEXT = 1\n"
+		jsfile += "PRESERVESTATE = 1\n"
+		jsfile += "\n"	
+		jsfile += 'foldersTree = gFld("<b>Ebay</b>","'+ categoryID +'.html")'
+		jsfile += "\n"
+		jsfile += 'foldersTree.treeID = "Ebay"'
+		jsfile += "\n"
+		nodes = {}
+		values = []		
 		for line in categoryList:
 			for i in range(5):
-				array = '{'
 				if line[i] is not None:
-					array += "\'id\': \'" + str(abs(hash(line[i])))+ "\',"
-					if i == 0:
-						array += "\'parent\': \'#\',"
-					if i > 0:
-							array += "\'parent\': \'" + str(abs(hash(line[i-1]))) + "\',"
-					array += "\'text\': \'" + line[i].replace("'", "&apos;") + "\'"
-					if line[i+1] is None:
-						array += ",\'icon\': \'/\'"
-					array += '},'
-					if not array in arrayCollection:
-						arrayCollection += array
-		arrayCollection += ']'
+					if not str(line[i]) in nodes:
+						if i == 0:
+							data = self._setRoot(str(line[i]))
+							nodes['_'+str(abs(hash(line[i])))] = data
+							values.append('_'+str(abs(hash(line[i]))))
+						else:
+							if nodes['_'+str(abs(hash(str(line[i-1]))))] <> None:
+								data = self._setChild(str(abs(hash(line[i-1]))),str(line[i]))
+								nodes['_'+str(abs(hash(line[i])))] = data
+								values.append('_'+str(abs(hash(line[i]))))
+		for item in self.uniqe(values):
+			jsfile += nodes[item] + "\n"
+		self.writeJs(categoryID, jsfile)
+		content = self.readHTML(categoryID)
+		content = content.replace("{{categoryID}}", categoryID)
+		self.writeHTML(categoryID, content)
+		
+	def writeJs(self, categoryID, data):
+		try:
+			jsfile = open(categoryID+'.js', "w")
+			jsfile.write(data)
+			jsfile.close()
+		except IOError as e:
+			print "I/O error({0}): {1}".format(e.errno, e.strerror)
+		except:
+			print "Unexpected error:", sys.exc_info()[0]
+
+
+	def readHTML(self, categoryID):
+		config = ConfigParser.RawConfigParser()
+		config.read('config.ini')
+		_dir = os.path.dirname(__file__)
+		template = config.get('template', 'folder')
+		try:
+			htmlfile = open(''+_dir+''+template, "r")
+			content = htmlfile.read()
+			htmlfile.close()
+			return content
+		except IOError as e:
+			print "I/O error({0}): {1}".format(e.errno, e.strerror)
+		except:
+			print "Unexpected error:", sys.exc_info()[0]
 			
-		doc = dominate.document(title='Category ' + categoryID)
-		with doc.head:
-			link(rel='stylesheet', href='dist/themes/default/style.css')
-			script(type='text/javascript', src='dist/jquery-1.12.1.min.js')
-			script(type='text/javascript', src='dist/jstree.js')
-			doc += script("$(function() {  $('#jstree').jstree({ 'plugins' : ['json_data'], 'core': {  'data': "+ arrayCollection +"  } }); });")
-			with doc:
-				with div(id='jstree'):
-					attr(cls='jstree')
-		with open(categoryID + '.html', 'w') as f:
-			f.write(doc.render())
-		f.closed
+	def writeHTML(self, categoryID, data):
+		try:
+			html = open(categoryID+'.html', "w")
+			html.write(data)
+			html.close()
+		except IOError as e:
+			print "I/O error({0}): {1}".format(e.errno, e.strerror)
+		except:
+			print "Unexpected error:", sys.exc_info()[0]
