@@ -23,14 +23,14 @@ categories --pool &lt;threeds&gt;<br />
 &nbsp; &nbsp; &nbsp;Sample Session<br />
 =========================</p>
 
-<p>% python categories.py --rebuild<br />
-% python categories.py --rebuild<br />
-% python categories.py --render 179281<br />
-% ls 179281.html<br />
+$ python categories.py --rebuild<br />
+$ python categories.py --rebuild<br />
+$ python categories.py --render 179281<br />
+$ ls 179281.html<br />
 179281.html<br />
-% ls 179022.html<br />
+$ ls 179022.html<br />
 179022.html<br />
-% python categories.py --render 6666666666<br />
+$ python categories.py --render 6666666666<br />
 No category with ID: 6666666666</p>
 
 <p>requirements<br />
