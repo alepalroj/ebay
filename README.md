@@ -2,7 +2,7 @@
 Consuming Web services</p>
 
 <p>before &nbsp;<br />
-https://github.com/kratark/ebay/issues</p>
+https://github.com/alepalroj/ebay/issues</p>
 
 <p>$ python categories.py --help<br />
 -----------------------------------------------------<br />
